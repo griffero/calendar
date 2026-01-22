@@ -1,0 +1,110 @@
+import { createRouter, createWebHistory } from 'vue-router'
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/components/pages/LoginPage.vue'),
+    },
+    {
+      path: '/signup',
+      name: 'signup',
+      component: () => import('@/components/pages/SignupPage.vue'),
+    },
+    {
+      path: '/',
+      name: 'app',
+      component: () => import('@/components/pages/AppLayout.vue'),
+      children: [
+        {
+          path: '',
+          name: 'home',
+          component: () => import('@/components/pages/HomePage.vue'),
+        },
+        {
+          path: 'inbox',
+          name: 'inbox',
+          component: () => import('@/components/pages/InboxPage.vue'),
+        },
+        {
+          path: 'my-issues',
+          name: 'my-issues',
+          component: () => import('@/components/pages/MyIssuesPage.vue'),
+        },
+        {
+          path: 'settings',
+          name: 'settings',
+          component: () => import('@/components/pages/SettingsPage.vue'),
+          children: [
+            {
+              path: '',
+              name: 'general-settings',
+              component: () => import('@/components/pages/settings/GeneralSettings.vue'),
+            },
+            {
+              path: 'members',
+              name: 'members-settings',
+              component: () => import('@/components/pages/settings/MembersSettings.vue'),
+            },
+            {
+              path: 'teams',
+              name: 'teams-settings',
+              component: () => import('@/components/pages/settings/TeamsSettings.vue'),
+            },
+            {
+              path: 'labels',
+              name: 'labels-settings',
+              component: () => import('@/components/pages/settings/LabelsSettings.vue'),
+            },
+          ],
+        },
+        {
+          path: 'team/:teamKey',
+          name: 'team',
+          component: () => import('@/components/pages/TeamPage.vue'),
+          children: [
+            {
+              path: '',
+              name: 'team-active',
+              component: () => import('@/components/pages/team/TeamActivePage.vue'),
+            },
+            {
+              path: 'backlog',
+              name: 'team-backlog',
+              component: () => import('@/components/pages/team/TeamBacklogPage.vue'),
+            },
+            {
+              path: 'board',
+              name: 'team-board',
+              component: () => import('@/components/pages/team/TeamBoardPage.vue'),
+            },
+            {
+              path: 'cycles',
+              name: 'team-cycles',
+              component: () => import('@/components/pages/team/TeamCyclesPage.vue'),
+            },
+          ],
+        },
+        {
+          path: 'project/:projectSlug',
+          name: 'project',
+          component: () => import('@/components/pages/ProjectPage.vue'),
+        },
+        {
+          path: 'issue/:issueId',
+          name: 'issue',
+          component: () => import('@/components/pages/IssuePage.vue'),
+        },
+        {
+          path: 'view/:viewId',
+          name: 'view',
+          component: () => import('@/components/pages/ViewPage.vue'),
+        },
+      ],
+    },
+  ],
+})
+
+export default router

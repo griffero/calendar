@@ -1,0 +1,79 @@
+# Omakase Ruby styling for Rails
+inherit_gem:
+  rubocop-rails-omakase: rubocop.yml
+
+require:
+  - rubocop-rails
+  - rubocop-rspec
+  - rubocop-performance
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.2
+  Exclude:
+    - 'bin/**/*'
+    - 'db/schema.rb'
+    - 'db/migrate/**/*'
+    - 'node_modules/**/*'
+    - 'vendor/**/*'
+    - 'client/**/*'
+    - 'tmp/**/*'
+
+# Style
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  EnforcedStyle: always
+
+Style/StringLiterals:
+  Enabled: true
+  EnforcedStyle: double_quotes
+
+Style/StringLiteralsInInterpolation:
+  Enabled: true
+  EnforcedStyle: double_quotes
+
+# Layout
+Layout/LineLength:
+  Max: 120
+  AllowedPatterns: ['^\s*#']
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+# Metrics
+Metrics/MethodLength:
+  Max: 20
+  CountAsOne: ['array', 'hash', 'heredoc']
+
+Metrics/ClassLength:
+  Max: 200
+  CountAsOne: ['array', 'hash', 'heredoc']
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - 'config/routes.rb'
+    - 'config/environments/**/*'
+
+Metrics/AbcSize:
+  Max: 25
+
+# Rails
+Rails/SkipsModelValidations:
+  Enabled: false
+
+Rails/HasManyOrHasOneDependent:
+  Enabled: false
+
+# RSpec
+RSpec/ExampleLength:
+  Max: 20
+
+RSpec/MultipleExpectations:
+  Max: 5
+
+RSpec/NestedGroups:
+  Max: 4

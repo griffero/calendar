@@ -1,0 +1,98 @@
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import type { Team, Project } from '@/types'
+import { api } from '@/api/client'
+
+export const useAppStore = defineStore('app', () => {
+  const teams = ref<Team[]>([])
+  const projects = ref<Project[]>([])
+  const users = ref<{ id: string; name: string; email: string; avatarUrl?: string }[]>([])
+  const loading = ref(false)
+  const error = ref<string | null>(null)
+
+  async function fetchTeams() {
+    try {
+      loading.value = true
+      const data = await api.get<{ teams: Team[] }>('/api/v1/teams')
+      teams.value = data.teams
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to fetch teams'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function fetchProjects() {
+    try {
+      loading.value = true
+      const data = await api.get<{ projects: Project[] }>('/api/v1/projects')
+      projects.value = data.projects
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to fetch projects'
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function fetchUsers() {
+    try {
+      const data = await api.get<{ users: typeof users.value }>('/api/v1/users')
+      users.value = data.users
+    } catch (err) {
+      console.error('Failed to fetch users:', err)
+    }
+  }
+
+  async function createTeam(teamData: { name: string; key: string; description?: string; color?: string }) {
+    try {
+      loading.value = true
+      const data = await api.post<{ team: Team }>('/api/v1/teams', {
+        team: teamData
+      })
+      teams.value.push(data.team)
+      return data.team
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to create team'
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function createProject(projectData: { name: string; slug?: string; description?: string; color?: string; privacy?: string }) {
+    try {
+      loading.value = true
+      const data = await api.post<{ project: Project }>('/api/v1/projects', {
+        project: projectData
+      })
+      projects.value.push(data.project)
+      return data.project
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to create project'
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  function reset() {
+    teams.value = []
+    projects.value = []
+    users.value = []
+    error.value = null
+  }
+
+  return {
+    teams,
+    projects,
+    users,
+    loading,
+    error,
+    fetchTeams,
+    fetchProjects,
+    fetchUsers,
+    createTeam,
+    createProject,
+    reset
+  }
+})

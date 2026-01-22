@@ -1,0 +1,87 @@
+# frozen_string_literal: true
+
+require "sidekiq/web"
+
+Rails.application.routes.draw do
+  # Health check
+  get "up" => "rails/health#show", as: :rails_health_check
+
+  # Sidekiq Web UI (protected in production)
+  mount Sidekiq::Web => "/sidekiq"
+
+  # GraphQL API (public)
+  post "/graphql", to: "graphql#execute"
+
+  # GraphiQL in development
+  if Rails.env.development?
+    mount GraphiQL::Rails::Engine, at: "/graphiql", graphql_path: "/graphql"
+  end
+
+  # REST API (internal) - Single tenant, no workspace scoping
+  namespace :api do
+    namespace :v1 do
+      # Authentication
+      namespace :auth do
+        post "signup", to: "sessions#signup"
+        post "login", to: "sessions#login"
+        delete "logout", to: "sessions#logout"
+        get "me", to: "sessions#me"
+      end
+
+      # Users (admin only)
+      resources :users, only: %i[index show update destroy] do
+        member do
+          patch :role
+        end
+      end
+
+      # Teams
+      resources :teams, param: :key, only: %i[index create show update destroy] do
+        resources :members, controller: "team_members", only: %i[index create destroy], param: :user_id
+      end
+
+      # Projects
+      resources :projects, param: :slug, only: %i[index create show update destroy] do
+        resources :members, controller: "project_members", only: %i[index create destroy], param: :user_id
+      end
+
+      # Labels (global and team-specific)
+      resources :labels, only: %i[index create show update destroy]
+
+      # Issues
+      resources :issues, only: %i[index create show update destroy] do
+        resources :comments, only: %i[index create update destroy]
+        collection do
+          post :bulk
+        end
+      end
+
+      # Comments (standalone for updates)
+      resources :comments, only: %i[update destroy] do
+        resources :reactions, only: %i[create destroy]
+      end
+
+      # Saved Views
+      resources :views, only: %i[index create show update destroy]
+
+      # Notifications
+      resources :notifications, only: %i[index] do
+        member do
+          patch :read
+        end
+        collection do
+          post :read_all
+        end
+      end
+
+      # Search
+      get "search", to: "search#index"
+
+      # Settings (admin only)
+      namespace :settings do
+        get "/", to: "settings#show"
+        patch "/", to: "settings#update"
+      end
+    end
+  end
+end

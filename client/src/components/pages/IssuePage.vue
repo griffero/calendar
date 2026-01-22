@@ -1,0 +1,194 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { cn } from '@/utils/cn'
+import Button from '@/components/ui/Button.vue'
+import Avatar from '@/components/ui/Avatar.vue'
+import {
+  ArrowLeft,
+  Circle,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  User,
+  Tag,
+  FolderKanban,
+  Calendar,
+  MessageSquare
+} from 'lucide-vue-next'
+
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
+
+const user = computed(() => authStore.user)
+const issueId = computed(() => route.params.issueId as string)
+
+// Placeholder issue data
+const issue = ref<{
+  id: string
+  identifier: string
+  title: string
+  description: string
+  status: string
+  priority: number
+  assignee?: { id: string; name: string }
+  createdAt: string
+} | null>({
+  id: '1',
+  identifier: 'ENG-1',
+  title: 'Example Issue',
+  description: 'This is a placeholder issue. The full issue page will be implemented in F3.',
+  status: 'todo',
+  priority: 2,
+  assignee: { id: '1', name: 'John Doe' },
+  createdAt: new Date().toISOString(),
+})
+
+const loading = ref(false)
+
+const priorities = [
+  { value: 0, label: 'No priority', color: 'text-gray-400' },
+  { value: 1, label: 'Urgent', color: 'text-red-500' },
+  { value: 2, label: 'High', color: 'text-orange-500' },
+  { value: 3, label: 'Medium', color: 'text-yellow-500' },
+  { value: 4, label: 'Low', color: 'text-blue-500' },
+]
+
+const statuses = [
+  { value: 'backlog', label: 'Backlog', icon: Circle, color: 'text-gray-400' },
+  { value: 'todo', label: 'Todo', icon: Circle, color: 'text-gray-500' },
+  { value: 'in_progress', label: 'In Progress', icon: Clock, color: 'text-yellow-500' },
+  { value: 'done', label: 'Done', icon: CheckCircle2, color: 'text-green-500' },
+  { value: 'canceled', label: 'Canceled', icon: XCircle, color: 'text-red-400' },
+]
+
+function getStatus(value: string) {
+  return statuses.find(s => s.value === value) || statuses[0]
+}
+
+function getPriority(value: number) {
+  return priorities.find(p => p.value === value) || priorities[0]
+}
+</script>
+
+<template>
+  <div class="h-full flex">
+    <!-- Main content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- Header -->
+      <div class="flex items-center gap-3 px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+        <button 
+          @click="router.back()"
+          class="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
+        >
+          <ArrowLeft class="h-4 w-4 text-gray-500" />
+        </button>
+        <span class="text-sm font-mono text-gray-500">{{ issue?.identifier }}</span>
+      </div>
+
+      <!-- Issue content -->
+      <div v-if="loading" class="flex items-center justify-center py-16">
+        <div class="animate-spin rounded-full h-8 w-8 border-2 border-primary-600 border-t-transparent"></div>
+      </div>
+
+      <div v-else-if="issue" class="flex-1 overflow-auto p-6">
+        <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          {{ issue.title }}
+        </h1>
+
+        <div class="prose dark:prose-invert max-w-none mb-8">
+          <p>{{ issue.description }}</p>
+        </div>
+
+        <!-- Comments section placeholder -->
+        <div class="border-t border-gray-200 dark:border-gray-800 pt-6">
+          <h2 class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+            <MessageSquare class="h-4 w-4" />
+            Activity
+          </h2>
+          <div class="text-sm text-gray-500 text-center py-8">
+            No activity yet
+          </div>
+        </div>
+      </div>
+
+      <div v-else class="flex items-center justify-center h-full">
+        <div class="text-center">
+          <p class="text-gray-500">Issue not found</p>
+          <Button variant="ghost" class="mt-4" @click="router.push('/')">
+            Go back home
+          </Button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div v-if="issue" class="w-72 border-l border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-4 overflow-auto">
+      <div class="space-y-4">
+        <!-- Status -->
+        <div>
+          <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Status</label>
+          <button class="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+            <component :is="getStatus(issue.status).icon" :class="cn('h-4 w-4', getStatus(issue.status).color)" />
+            {{ getStatus(issue.status).label }}
+          </button>
+        </div>
+
+        <!-- Priority -->
+        <div>
+          <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Priority</label>
+          <button class="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+            <span :class="cn('font-mono font-bold', getPriority(issue.priority).color)">
+              {{ issue.priority === 0 ? '—' : 'P' + issue.priority }}
+            </span>
+            {{ getPriority(issue.priority).label }}
+          </button>
+        </div>
+
+        <!-- Assignee -->
+        <div>
+          <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Assignee</label>
+          <button class="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-sm">
+            <template v-if="issue.assignee">
+              <Avatar :name="issue.assignee.name" size="xs" />
+              {{ issue.assignee.name }}
+            </template>
+            <template v-else>
+              <User class="h-4 w-4 text-gray-400" />
+              <span class="text-gray-500">Unassigned</span>
+            </template>
+          </button>
+        </div>
+
+        <!-- Labels placeholder -->
+        <div>
+          <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Labels</label>
+          <button class="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-500">
+            <Tag class="h-4 w-4" />
+            Add labels
+          </button>
+        </div>
+
+        <!-- Project placeholder -->
+        <div>
+          <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Project</label>
+          <button class="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-500">
+            <FolderKanban class="h-4 w-4" />
+            Add to project
+          </button>
+        </div>
+
+        <!-- Due date placeholder -->
+        <div>
+          <label class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 block">Due date</label>
+          <button class="w-full flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-sm text-gray-500">
+            <Calendar class="h-4 w-4" />
+            Set due date
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

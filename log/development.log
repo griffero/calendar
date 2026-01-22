@@ -1,0 +1,468 @@
+  [1m[35m (190.7ms)[0m  [1m[35mCREATE DATABASE "linear_clone_development" ENCODING = 'unicode' /*application='LinearClone'*/[0m
+  [1m[35m (114.5ms)[0m  [1m[35mCREATE DATABASE "linear_clone_development" ENCODING = 'unicode' /*application='LinearClone'*/[0m
+  [1m[35m (122.9ms)[0m  [1m[35mCREATE DATABASE "linear_clone_development" ENCODING = 'unicode' /*application='LinearClone'*/[0m
+  [1m[35mSQL (0.4ms)[0m  [1m[35mSET search_path TO public /*application='LinearClone'*/[0m
+  [1m[35m (137.7ms)[0m  [1m[35mCREATE DATABASE "linear_clone_development" ENCODING = 'unicode' /*application='LinearClone'*/[0m
+  [1m[35mSQL (0.1ms)[0m  [1m[35mSET search_path TO public /*application='LinearClone'*/[0m
+  [1m[35m (39.1ms)[0m  [1m[35mCREATE DATABASE "linear_clone_test" ENCODING = 'unicode' /*application='LinearClone'*/[0m
+  [1m[35m (5.4ms)[0m  [1m[35mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL PRIMARY KEY) /*application='LinearClone'*/[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE TABLE "ar_internal_metadata" ("key" character varying NOT NULL PRIMARY KEY, "value" character varying, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL) /*application='LinearClone'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_try_advisory_lock(225299084787497700) /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.4ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (2.3ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Create (1.0ms)[0m  [1m[32mINSERT INTO "ar_internal_metadata" ("key", "value", "created_at", "updated_at") VALUES ('environment', 'development', '2026-01-22 13:51:52.800041', '2026-01-22 13:51:52.800043') RETURNING "key" /*application='LinearClone'*/[0m
+Migrating to CreateUsers (20260122134214)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[35mSQL (290.4ms)[0m  [1m[35mCREATE EXTENSION IF NOT EXISTS "pgcrypto" /*application='LinearClone'*/[0m
+  [1m[35mSQL (268.9ms)[0m  [1m[35mCREATE EXTENSION IF NOT EXISTS "pg_trgm" /*application='LinearClone'*/[0m
+  [1m[35m (6.5ms)[0m  [1m[35mCREATE TABLE "users" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "email" character varying NOT NULL, "password_digest" character varying NOT NULL, "name" character varying NOT NULL, "avatar_url" character varying, "timezone" character varying DEFAULT 'UTC', "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL) /*application='LinearClone'*/[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_users_on_email" ON "users" ("email") /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.3ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20260122134214') RETURNING "version" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.9ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+Migrating to CreateWorkspaces (20260122134227)
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[35m (3.3ms)[0m  [1m[35mCREATE TABLE "workspaces" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "name" character varying NOT NULL, "slug" character varying NOT NULL, "logo_url" character varying, "settings" jsonb DEFAULT '{}', "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL) /*application='LinearClone'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_workspaces_on_slug" ON "workspaces" ("slug") /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20260122134227') RETURNING "version" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+Migrating to CreateWorkspaceMemberships (20260122134238)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[35m (3.8ms)[0m  [1m[35mCREATE TABLE "workspace_memberships" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "user_id" uuid NOT NULL, "workspace_id" uuid NOT NULL, "role" character varying DEFAULT 'member' NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_aca847b4f5"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_26c4c0bd41"
+FOREIGN KEY ("workspace_id")
+  REFERENCES "workspaces" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_workspace_memberships_on_user_id" ON "workspace_memberships" ("user_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_workspace_memberships_on_workspace_id" ON "workspace_memberships" ("workspace_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_workspace_memberships_on_user_id_and_workspace_id" ON "workspace_memberships" ("user_id", "workspace_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_workspace_memberships_on_role" ON "workspace_memberships" ("role") /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.4ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20260122134238') RETURNING "version" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_advisory_unlock(225299084787497700) /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_try_advisory_lock(225299084787497700) /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.8ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='LinearClone'*/[0m
+Migrating to CreateTeams (20260122135644)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[35m (6.0ms)[0m  [1m[35mCREATE TABLE "teams" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "workspace_id" uuid NOT NULL, "name" character varying NOT NULL, "key" character varying NOT NULL, "description" text, "icon" character varying, "color" character varying, "issue_counter" integer DEFAULT 0, "settings" jsonb DEFAULT '{}', "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_a68041d834"
+FOREIGN KEY ("workspace_id")
+  REFERENCES "workspaces" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_teams_on_workspace_id" ON "teams" ("workspace_id") /*application='LinearClone'*/[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_teams_on_workspace_id_and_key" ON "teams" ("workspace_id", "key") /*application='LinearClone'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_teams_on_key" ON "teams" ("key") /*application='LinearClone'*/[0m
+  [1m[35m (2.0ms)[0m  [1m[35mCREATE TABLE "team_memberships" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "user_id" uuid NOT NULL, "team_id" uuid NOT NULL, "role" character varying DEFAULT 'member', "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_5aba9331a7"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_61c29b529e"
+FOREIGN KEY ("team_id")
+  REFERENCES "teams" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_team_memberships_on_user_id" ON "team_memberships" ("user_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_team_memberships_on_team_id" ON "team_memberships" ("team_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_team_memberships_on_user_id_and_team_id" ON "team_memberships" ("user_id", "team_id") /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20260122135644') RETURNING "version" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[35m (0.5ms)[0m  [1m[34mSELECT pg_advisory_unlock(225299084787497700) /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_try_advisory_lock(225299084787497700) /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.3ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='LinearClone'*/[0m
+Migrating to CreateProjects (20260122135854)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[35m (7.4ms)[0m  [1m[35mCREATE TABLE "projects" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "workspace_id" uuid NOT NULL, "name" character varying NOT NULL, "slug" character varying NOT NULL, "description" text, "icon" character varying, "color" character varying, "lead_id" uuid, "privacy" character varying DEFAULT 'public', "status" character varying DEFAULT 'active', "start_date" date, "target_date" date, "settings" jsonb DEFAULT '{}', "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_2b526e3a7f"
+FOREIGN KEY ("workspace_id")
+  REFERENCES "workspaces" ("id")
+, CONSTRAINT "fk_rails_c55b84bed5"
+FOREIGN KEY ("lead_id")
+  REFERENCES "users" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_projects_on_workspace_id" ON "projects" ("workspace_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_projects_on_lead_id" ON "projects" ("lead_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_projects_on_workspace_id_and_slug" ON "projects" ("workspace_id", "slug") /*application='LinearClone'*/[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_projects_on_status" ON "projects" ("status") /*application='LinearClone'*/[0m
+  [1m[35m (2.6ms)[0m  [1m[35mCREATE TABLE "project_memberships" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "user_id" uuid NOT NULL, "project_id" uuid NOT NULL, "role" character varying DEFAULT 'member', "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_86b046ec96"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_18b611e244"
+FOREIGN KEY ("project_id")
+  REFERENCES "projects" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_project_memberships_on_user_id" ON "project_memberships" ("user_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_project_memberships_on_project_id" ON "project_memberships" ("project_id") /*application='LinearClone'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_project_memberships_on_user_id_and_project_id" ON "project_memberships" ("user_id", "project_id") /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20260122135854') RETURNING "version" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_advisory_unlock(225299084787497700) /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[36mProjectMembership Load (2.0ms)[0m  [1m[34mSELECT "project_memberships".* FROM "project_memberships" /*application='LinearClone'*/[0m
+  [1m[36mProject Load (2.1ms)[0m  [1m[34mSELECT "projects".* FROM "projects" /*application='LinearClone'*/[0m
+  [1m[36mTeamMembership Load (2.0ms)[0m  [1m[34mSELECT "team_memberships".* FROM "team_memberships" /*application='LinearClone'*/[0m
+  [1m[36mTeam Load (1.5ms)[0m  [1m[34mSELECT "teams".* FROM "teams" /*application='LinearClone'*/[0m
+  [1m[36mWorkspaceMembership Load (3.0ms)[0m  [1m[34mSELECT "workspace_memberships".* FROM "workspace_memberships" /*application='LinearClone'*/[0m
+  [1m[36mWorkspace Load (1.0ms)[0m  [1m[34mSELECT "workspaces".* FROM "workspaces" /*application='LinearClone'*/[0m
+  [1m[36mUser Load (2.3ms)[0m  [1m[34mSELECT "users".* FROM "users" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mUser Exists? (1.1ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE LOWER("users"."email") = LOWER('demo@example.com') LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mUser Create (0.8ms)[0m  [1m[32mINSERT INTO "users" ("email", "password_digest", "name", "avatar_url", "timezone", "created_at", "updated_at") VALUES ('demo@example.com', '$2a$12$btNnvcyqTWfy85EFAS4z0OjKkIhauUXFNZhraMNztqR9OEDkMLbdW', 'Demo User', NULL, 'UTC', '2026-01-22 14:01:40.477991', '2026-01-22 14:01:40.477991') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mUser Exists? (0.7ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE LOWER("users"."email") = LOWER('alice@example.com') LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mUser Create (0.2ms)[0m  [1m[32mINSERT INTO "users" ("email", "password_digest", "name", "avatar_url", "timezone", "created_at", "updated_at") VALUES ('alice@example.com', '$2a$12$ub5776wFjC2ftzJKvwbH.uPfY62ZyT3tpW/AS3Tg41kuG.OiCKsE.', 'Alice Smith', NULL, 'UTC', '2026-01-22 14:01:40.649618', '2026-01-22 14:01:40.649618') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mUser Exists? (0.8ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE LOWER("users"."email") = LOWER('bob@example.com') LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mUser Create (0.2ms)[0m  [1m[32mINSERT INTO "users" ("email", "password_digest", "name", "avatar_url", "timezone", "created_at", "updated_at") VALUES ('bob@example.com', '$2a$12$nknUuBEEJqPLAqy/5HOzW.BPiYVcKIqPbV9Q0978MHrwaKSdG41DS', 'Bob Johnson', NULL, 'UTC', '2026-01-22 14:01:40.820486', '2026-01-22 14:01:40.820486') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.5ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mUser Exists? (0.7ms)[0m  [1m[34mSELECT 1 AS one FROM "users" WHERE LOWER("users"."email") = LOWER('carol@example.com') LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mUser Create (0.4ms)[0m  [1m[32mINSERT INTO "users" ("email", "password_digest", "name", "avatar_url", "timezone", "created_at", "updated_at") VALUES ('carol@example.com', '$2a$12$sTWc7LKss52PvS1Ghgqq7usdBu6PE1aRVPpygQTMnx6m5mxUBg6ja', 'Carol Williams', NULL, 'UTC', '2026-01-22 14:01:40.991006', '2026-01-22 14:01:40.991006') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.4ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mWorkspace Exists? (0.6ms)[0m  [1m[34mSELECT 1 AS one FROM "workspaces" WHERE "workspaces"."slug" = 'acme' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mWorkspace Create (0.7ms)[0m  [1m[32mINSERT INTO "workspaces" ("name", "slug", "logo_url", "settings", "created_at", "updated_at") VALUES ('Acme Inc', 'acme', NULL, '{}', '2026-01-22 14:01:40.996788', '2026-01-22 14:01:40.996788') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mWorkspaceMembership Exists? (1.3ms)[0m  [1m[34mSELECT 1 AS one FROM "workspace_memberships" WHERE "workspace_memberships"."user_id" = 'ff0f5328-a27f-48a1-aec2-ba8e88725e01' AND "workspace_memberships"."workspace_id" = '11a614d4-106d-4b9e-806c-953d3edac31e' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mWorkspaceMembership Create (1.3ms)[0m  [1m[32mINSERT INTO "workspace_memberships" ("user_id", "workspace_id", "role", "created_at", "updated_at") VALUES ('ff0f5328-a27f-48a1-aec2-ba8e88725e01', '11a614d4-106d-4b9e-806c-953d3edac31e', 'owner', '2026-01-22 14:01:41.004421', '2026-01-22 14:01:41.004421') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mWorkspaceMembership Exists? (0.6ms)[0m  [1m[34mSELECT 1 AS one FROM "workspace_memberships" WHERE "workspace_memberships"."user_id" = 'c433b2a6-7133-42b1-8587-74303cccfd10' AND "workspace_memberships"."workspace_id" = '11a614d4-106d-4b9e-806c-953d3edac31e' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mWorkspaceMembership Create (0.4ms)[0m  [1m[32mINSERT INTO "workspace_memberships" ("user_id", "workspace_id", "role", "created_at", "updated_at") VALUES ('c433b2a6-7133-42b1-8587-74303cccfd10', '11a614d4-106d-4b9e-806c-953d3edac31e', 'member', '2026-01-22 14:01:41.007449', '2026-01-22 14:01:41.007449') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mWorkspaceMembership Exists? (0.6ms)[0m  [1m[34mSELECT 1 AS one FROM "workspace_memberships" WHERE "workspace_memberships"."user_id" = '594f5079-166b-47d6-bc89-207c9e3a38dd' AND "workspace_memberships"."workspace_id" = '11a614d4-106d-4b9e-806c-953d3edac31e' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mWorkspaceMembership Create (0.2ms)[0m  [1m[32mINSERT INTO "workspace_memberships" ("user_id", "workspace_id", "role", "created_at", "updated_at") VALUES ('594f5079-166b-47d6-bc89-207c9e3a38dd', '11a614d4-106d-4b9e-806c-953d3edac31e', 'member', '2026-01-22 14:01:41.009508', '2026-01-22 14:01:41.009508') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mWorkspaceMembership Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "workspace_memberships" WHERE "workspace_memberships"."user_id" = '1ab5eed4-32b8-4bf9-bd99-a1b61b801301' AND "workspace_memberships"."workspace_id" = '11a614d4-106d-4b9e-806c-953d3edac31e' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mWorkspaceMembership Create (0.2ms)[0m  [1m[32mINSERT INTO "workspace_memberships" ("user_id", "workspace_id", "role", "created_at", "updated_at") VALUES ('1ab5eed4-32b8-4bf9-bd99-a1b61b801301', '11a614d4-106d-4b9e-806c-953d3edac31e', 'member', '2026-01-22 14:01:41.011083', '2026-01-22 14:01:41.011083') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.3ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mTeam Exists? (0.6ms)[0m  [1m[34mSELECT 1 AS one FROM "teams" WHERE "teams"."key" = 'ENG' AND "teams"."workspace_id" = '11a614d4-106d-4b9e-806c-953d3edac31e' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mTeam Create (0.9ms)[0m  [1m[32mINSERT INTO "teams" ("workspace_id", "name", "key", "description", "icon", "color", "issue_counter", "settings", "created_at", "updated_at") VALUES ('11a614d4-106d-4b9e-806c-953d3edac31e', 'Engineering', 'ENG', 'Product engineering team', NULL, '#5e6ad2', 0, '{}', '2026-01-22 14:01:41.019592', '2026-01-22 14:01:41.019592') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mTeam Exists? (0.6ms)[0m  [1m[34mSELECT 1 AS one FROM "teams" WHERE "teams"."key" = 'DES' AND "teams"."workspace_id" = '11a614d4-106d-4b9e-806c-953d3edac31e' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mTeam Create (0.3ms)[0m  [1m[32mINSERT INTO "teams" ("workspace_id", "name", "key", "description", "icon", "color", "issue_counter", "settings", "created_at", "updated_at") VALUES ('11a614d4-106d-4b9e-806c-953d3edac31e', 'Design', 'DES', 'Product design team', NULL, '#f2994a', 0, '{}', '2026-01-22 14:01:41.022327', '2026-01-22 14:01:41.022327') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mTeamMembership Exists? (0.6ms)[0m  [1m[34mSELECT 1 AS one FROM "team_memberships" WHERE "team_memberships"."user_id" = 'ff0f5328-a27f-48a1-aec2-ba8e88725e01' AND "team_memberships"."team_id" = '901d5d92-a0f2-43cc-a4aa-1e4f96506d1a' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mTeamMembership Create (1.5ms)[0m  [1m[32mINSERT INTO "team_memberships" ("user_id", "team_id", "role", "created_at", "updated_at") VALUES ('ff0f5328-a27f-48a1-aec2-ba8e88725e01', '901d5d92-a0f2-43cc-a4aa-1e4f96506d1a', 'lead', '2026-01-22 14:01:41.027912', '2026-01-22 14:01:41.027912') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mTeamMembership Exists? (0.6ms)[0m  [1m[34mSELECT 1 AS one FROM "team_memberships" WHERE "team_memberships"."user_id" = 'c433b2a6-7133-42b1-8587-74303cccfd10' AND "team_memberships"."team_id" = '901d5d92-a0f2-43cc-a4aa-1e4f96506d1a' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mTeamMembership Create (0.3ms)[0m  [1m[32mINSERT INTO "team_memberships" ("user_id", "team_id", "role", "created_at", "updated_at") VALUES ('c433b2a6-7133-42b1-8587-74303cccfd10', '901d5d92-a0f2-43cc-a4aa-1e4f96506d1a', 'member', '2026-01-22 14:01:41.031070', '2026-01-22 14:01:41.031070') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.7ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mTeamMembership Exists? (0.7ms)[0m  [1m[34mSELECT 1 AS one FROM "team_memberships" WHERE "team_memberships"."user_id" = '594f5079-166b-47d6-bc89-207c9e3a38dd' AND "team_memberships"."team_id" = '901d5d92-a0f2-43cc-a4aa-1e4f96506d1a' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mTeamMembership Create (0.2ms)[0m  [1m[32mINSERT INTO "team_memberships" ("user_id", "team_id", "role", "created_at", "updated_at") VALUES ('594f5079-166b-47d6-bc89-207c9e3a38dd', '901d5d92-a0f2-43cc-a4aa-1e4f96506d1a', 'member', '2026-01-22 14:01:41.033591', '2026-01-22 14:01:41.033591') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mTeamMembership Exists? (0.6ms)[0m  [1m[34mSELECT 1 AS one FROM "team_memberships" WHERE "team_memberships"."user_id" = 'c433b2a6-7133-42b1-8587-74303cccfd10' AND "team_memberships"."team_id" = '9f31461f-5b5b-4c34-bacb-4729964f109d' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mTeamMembership Create (0.2ms)[0m  [1m[32mINSERT INTO "team_memberships" ("user_id", "team_id", "role", "created_at", "updated_at") VALUES ('c433b2a6-7133-42b1-8587-74303cccfd10', '9f31461f-5b5b-4c34-bacb-4729964f109d', 'lead', '2026-01-22 14:01:41.035273', '2026-01-22 14:01:41.035273') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mTeamMembership Exists? (0.5ms)[0m  [1m[34mSELECT 1 AS one FROM "team_memberships" WHERE "team_memberships"."user_id" = '1ab5eed4-32b8-4bf9-bd99-a1b61b801301' AND "team_memberships"."team_id" = '9f31461f-5b5b-4c34-bacb-4729964f109d' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mTeamMembership Create (0.2ms)[0m  [1m[32mINSERT INTO "team_memberships" ("user_id", "team_id", "role", "created_at", "updated_at") VALUES ('1ab5eed4-32b8-4bf9-bd99-a1b61b801301', '9f31461f-5b5b-4c34-bacb-4729964f109d', 'member', '2026-01-22 14:01:41.036929', '2026-01-22 14:01:41.036929') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  ↳ app/models/project.rb:47:in `generate_slug'
+  [1m[36mProject Exists? (0.5ms)[0m  [1m[34mSELECT 1 AS one FROM "projects" WHERE "projects"."workspace_id" = '11a614d4-106d-4b9e-806c-953d3edac31e' AND "projects"."slug" = 'mobile-app' LIMIT 1 /*application='LinearClone'*/[0m
+  ↳ app/models/project.rb:47:in `generate_slug'
+  [1m[36mProject Exists? (0.3ms)[0m  [1m[34mSELECT 1 AS one FROM "projects" WHERE "projects"."slug" = 'mobile-app' AND "projects"."workspace_id" = '11a614d4-106d-4b9e-806c-953d3edac31e' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mProject Create (0.8ms)[0m  [1m[32mINSERT INTO "projects" ("workspace_id", "name", "slug", "description", "icon", "color", "lead_id", "privacy", "status", "start_date", "target_date", "settings", "created_at", "updated_at") VALUES ('11a614d4-106d-4b9e-806c-953d3edac31e', 'Mobile App', 'mobile-app', 'New mobile application', NULL, '#0ea5e9', 'ff0f5328-a27f-48a1-aec2-ba8e88725e01', 'public', 'active', NULL, NULL, '{}', '2026-01-22 14:01:41.043214', '2026-01-22 14:01:41.043214') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  ↳ app/models/project.rb:47:in `generate_slug'
+  [1m[36mProject Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "projects" WHERE "projects"."workspace_id" = '11a614d4-106d-4b9e-806c-953d3edac31e' AND "projects"."slug" = 'website-redesign' LIMIT 1 /*application='LinearClone'*/[0m
+  ↳ app/models/project.rb:47:in `generate_slug'
+  [1m[36mProject Exists? (0.2ms)[0m  [1m[34mSELECT 1 AS one FROM "projects" WHERE "projects"."slug" = 'website-redesign' AND "projects"."workspace_id" = '11a614d4-106d-4b9e-806c-953d3edac31e' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mProject Create (0.4ms)[0m  [1m[32mINSERT INTO "projects" ("workspace_id", "name", "slug", "description", "icon", "color", "lead_id", "privacy", "status", "start_date", "target_date", "settings", "created_at", "updated_at") VALUES ('11a614d4-106d-4b9e-806c-953d3edac31e', 'Website Redesign', 'website-redesign', 'Complete website overhaul', NULL, '#8b5cf6', 'c433b2a6-7133-42b1-8587-74303cccfd10', 'public', 'active', NULL, NULL, '{}', '2026-01-22 14:01:41.045844', '2026-01-22 14:01:41.045844') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mProjectMembership Exists? (0.6ms)[0m  [1m[34mSELECT 1 AS one FROM "project_memberships" WHERE "project_memberships"."user_id" = 'ff0f5328-a27f-48a1-aec2-ba8e88725e01' AND "project_memberships"."project_id" = 'b2c97558-a24e-4708-b3aa-bd109c1cd692' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mProjectMembership Create (0.6ms)[0m  [1m[32mINSERT INTO "project_memberships" ("user_id", "project_id", "role", "created_at", "updated_at") VALUES ('ff0f5328-a27f-48a1-aec2-ba8e88725e01', 'b2c97558-a24e-4708-b3aa-bd109c1cd692', 'lead', '2026-01-22 14:01:41.051237', '2026-01-22 14:01:41.051237') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mProjectMembership Exists? (0.6ms)[0m  [1m[34mSELECT 1 AS one FROM "project_memberships" WHERE "project_memberships"."user_id" = 'c433b2a6-7133-42b1-8587-74303cccfd10' AND "project_memberships"."project_id" = 'b2c97558-a24e-4708-b3aa-bd109c1cd692' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mProjectMembership Create (0.3ms)[0m  [1m[32mINSERT INTO "project_memberships" ("user_id", "project_id", "role", "created_at", "updated_at") VALUES ('c433b2a6-7133-42b1-8587-74303cccfd10', 'b2c97558-a24e-4708-b3aa-bd109c1cd692', 'member', '2026-01-22 14:01:41.053689', '2026-01-22 14:01:41.053689') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mProjectMembership Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "project_memberships" WHERE "project_memberships"."user_id" = 'c433b2a6-7133-42b1-8587-74303cccfd10' AND "project_memberships"."project_id" = '5b2b2473-36ce-43ff-b6f7-a8bf7f955b49' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mProjectMembership Create (0.2ms)[0m  [1m[32mINSERT INTO "project_memberships" ("user_id", "project_id", "role", "created_at", "updated_at") VALUES ('c433b2a6-7133-42b1-8587-74303cccfd10', '5b2b2473-36ce-43ff-b6f7-a8bf7f955b49', 'lead', '2026-01-22 14:01:41.056291', '2026-01-22 14:01:41.056291') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[36mProjectMembership Exists? (0.4ms)[0m  [1m[34mSELECT 1 AS one FROM "project_memberships" WHERE "project_memberships"."user_id" = '1ab5eed4-32b8-4bf9-bd99-a1b61b801301' AND "project_memberships"."project_id" = '5b2b2473-36ce-43ff-b6f7-a8bf7f955b49' LIMIT 1 /*application='LinearClone'*/[0m
+  [1m[36mProjectMembership Create (0.3ms)[0m  [1m[32mINSERT INTO "project_memberships" ("user_id", "project_id", "role", "created_at", "updated_at") VALUES ('1ab5eed4-32b8-4bf9-bd99-a1b61b801301', '5b2b2473-36ce-43ff-b6f7-a8bf7f955b49', 'member', '2026-01-22 14:01:41.058094', '2026-01-22 14:01:41.058094') RETURNING "id" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_try_advisory_lock(225299084787497700) /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.9ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.8ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='LinearClone'*/[0m
+Migrating to AddColorToTeamsAndProjects (20260122140605)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[35m (3.2ms)[0m  [1m[35mALTER TABLE "teams" ADD "color" character varying /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK /*application='LinearClone'*/[0m
+  [1m[35m (0.3ms)[0m  [1m[34mSELECT pg_advisory_unlock(225299084787497700) /*application='LinearClone'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_try_advisory_lock(225299084787497700) /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.1ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='LinearClone'*/[0m
+Migrating to CreateIssues (20260122141150)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[35m (12.4ms)[0m  [1m[35mCREATE TABLE "issues" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "team_id" uuid NOT NULL, "workspace_id" uuid NOT NULL, "creator_id" uuid NOT NULL, "assignee_id" uuid, "project_id" uuid, "parent_id" uuid, "identifier" character varying NOT NULL, "number" integer NOT NULL, "title" character varying NOT NULL, "description" text, "description_html" text, "status" character varying DEFAULT 'backlog' NOT NULL, "priority" integer DEFAULT 0 NOT NULL, "due_date" date, "estimate" decimal(10,2), "sort_order" integer DEFAULT 0 NOT NULL, "started_at" timestamp(6), "completed_at" timestamp(6), "canceled_at" timestamp(6), "archived_at" timestamp(6), "search_vector" tsvector, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_0e2f829a69"
+FOREIGN KEY ("team_id")
+  REFERENCES "teams" ("id")
+, CONSTRAINT "fk_rails_b9944f3ac4"
+FOREIGN KEY ("workspace_id")
+  REFERENCES "workspaces" ("id")
+, CONSTRAINT "fk_rails_3ac2c1e009"
+FOREIGN KEY ("creator_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_ff669b5916"
+FOREIGN KEY ("assignee_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_899c8f3231"
+FOREIGN KEY ("project_id")
+  REFERENCES "projects" ("id")
+, CONSTRAINT "fk_rails_7bccfcc396"
+FOREIGN KEY ("parent_id")
+  REFERENCES "issues" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_issues_on_team_id" ON "issues" ("team_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_issues_on_workspace_id" ON "issues" ("workspace_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_issues_on_creator_id" ON "issues" ("creator_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_issues_on_assignee_id" ON "issues" ("assignee_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_issues_on_project_id" ON "issues" ("project_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_issues_on_parent_id" ON "issues" ("parent_id") /*application='LinearClone'*/[0m
+  [1m[35m (1.4ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_issues_on_identifier" ON "issues" ("identifier") /*application='LinearClone'*/[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_issues_on_team_id_and_number" ON "issues" ("team_id", "number") /*application='LinearClone'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE INDEX "index_issues_on_workspace_id_and_status" ON "issues" ("workspace_id", "status") /*application='LinearClone'*/[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE INDEX "index_issues_on_team_id_and_status" ON "issues" ("team_id", "status") /*application='LinearClone'*/[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE INDEX "index_issues_on_assignee_id_and_status" ON "issues" ("assignee_id", "status") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_issues_on_project_id_and_status" ON "issues" ("project_id", "status") /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_issues_on_status" ON "issues" ("status") /*application='LinearClone'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_issues_on_priority" ON "issues" ("priority") /*application='LinearClone'*/[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE INDEX "index_issues_on_due_date" ON "issues" ("due_date") /*application='LinearClone'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE INDEX "index_issues_on_sort_order" ON "issues" ("sort_order") /*application='LinearClone'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_issues_on_created_at" ON "issues" ("created_at") /*application='LinearClone'*/[0m
+  [1m[35m (3.9ms)[0m  [1m[35mCREATE INDEX "index_issues_on_parent_id" ON "issues" ("parent_id") /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK /*application='LinearClone'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_advisory_unlock(225299084787497700) /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.2ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_try_advisory_lock(225299084787497700) /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+Reverting CreateProjects (20260122135854)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[35m (1.9ms)[0m  [1m[35mDROP INDEX  "index_project_memberships_on_user_id_and_project_id" /*application='LinearClone'*/[0m
+  [1m[35m (2.2ms)[0m  [1m[35mDROP TABLE "project_memberships" /*application='LinearClone'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[35mDROP INDEX  "index_projects_on_status" /*application='LinearClone'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[35mDROP INDEX  "index_projects_on_workspace_id_and_slug" /*application='LinearClone'*/[0m
+  [1m[35m (1.6ms)[0m  [1m[35mDROP TABLE "projects" /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Destroy (0.5ms)[0m  [1m[31mDELETE FROM "schema_migrations" WHERE "schema_migrations"."version" = '20260122135854' /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (4.2ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_advisory_unlock(225299084787497700) /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.9ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_try_advisory_lock(225299084787497700) /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (1.0ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (1.4ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='LinearClone'*/[0m
+Migrating to CreateProjects (20260122135854)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[35m (8.8ms)[0m  [1m[35mCREATE TABLE "projects" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "workspace_id" uuid NOT NULL, "name" character varying NOT NULL, "slug" character varying NOT NULL, "description" text, "icon" character varying, "color" character varying, "lead_id" uuid, "privacy" character varying DEFAULT 'public', "status" character varying DEFAULT 'active', "start_date" date, "target_date" date, "settings" jsonb DEFAULT '{}', "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_2b526e3a7f"
+FOREIGN KEY ("workspace_id")
+  REFERENCES "workspaces" ("id")
+, CONSTRAINT "fk_rails_c55b84bed5"
+FOREIGN KEY ("lead_id")
+  REFERENCES "users" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_projects_on_workspace_id" ON "projects" ("workspace_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_projects_on_lead_id" ON "projects" ("lead_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_projects_on_workspace_id_and_slug" ON "projects" ("workspace_id", "slug") /*application='LinearClone'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_projects_on_status" ON "projects" ("status") /*application='LinearClone'*/[0m
+  [1m[35m (3.3ms)[0m  [1m[35mCREATE TABLE "project_memberships" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "user_id" uuid NOT NULL, "project_id" uuid NOT NULL, "role" character varying DEFAULT 'member', "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_86b046ec96"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_18b611e244"
+FOREIGN KEY ("project_id")
+  REFERENCES "projects" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_project_memberships_on_user_id" ON "project_memberships" ("user_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_project_memberships_on_project_id" ON "project_memberships" ("project_id") /*application='LinearClone'*/[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_project_memberships_on_user_id_and_project_id" ON "project_memberships" ("user_id", "project_id") /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.3ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20260122135854') RETURNING "version" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.7ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+Migrating to CreateIssues (20260122141150)
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[35m (5.4ms)[0m  [1m[35mCREATE TABLE "issues" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "team_id" uuid NOT NULL, "workspace_id" uuid NOT NULL, "creator_id" uuid NOT NULL, "assignee_id" uuid, "project_id" uuid, "parent_id" uuid, "identifier" character varying NOT NULL, "number" integer NOT NULL, "title" character varying NOT NULL, "description" text, "description_html" text, "status" character varying DEFAULT 'backlog' NOT NULL, "priority" integer DEFAULT 0 NOT NULL, "due_date" date, "estimate" decimal(10,2), "sort_order" integer DEFAULT 0 NOT NULL, "started_at" timestamp(6), "completed_at" timestamp(6), "canceled_at" timestamp(6), "archived_at" timestamp(6), "search_vector" tsvector, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_0e2f829a69"
+FOREIGN KEY ("team_id")
+  REFERENCES "teams" ("id")
+, CONSTRAINT "fk_rails_b9944f3ac4"
+FOREIGN KEY ("workspace_id")
+  REFERENCES "workspaces" ("id")
+, CONSTRAINT "fk_rails_3ac2c1e009"
+FOREIGN KEY ("creator_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_ff669b5916"
+FOREIGN KEY ("assignee_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_899c8f3231"
+FOREIGN KEY ("project_id")
+  REFERENCES "projects" ("id")
+, CONSTRAINT "fk_rails_7bccfcc396"
+FOREIGN KEY ("parent_id")
+  REFERENCES "issues" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_issues_on_team_id" ON "issues" ("team_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_issues_on_workspace_id" ON "issues" ("workspace_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_issues_on_creator_id" ON "issues" ("creator_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_issues_on_assignee_id" ON "issues" ("assignee_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_issues_on_project_id" ON "issues" ("project_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_issues_on_parent_id" ON "issues" ("parent_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_issues_on_identifier" ON "issues" ("identifier") /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_issues_on_team_id_and_number" ON "issues" ("team_id", "number") /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_issues_on_workspace_id_and_status" ON "issues" ("workspace_id", "status") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_issues_on_team_id_and_status" ON "issues" ("team_id", "status") /*application='LinearClone'*/[0m
+  [1m[35m (0.5ms)[0m  [1m[35mCREATE INDEX "index_issues_on_assignee_id_and_status" ON "issues" ("assignee_id", "status") /*application='LinearClone'*/[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_issues_on_project_id_and_status" ON "issues" ("project_id", "status") /*application='LinearClone'*/[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_issues_on_status" ON "issues" ("status") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_issues_on_priority" ON "issues" ("priority") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_issues_on_due_date" ON "issues" ("due_date") /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_issues_on_sort_order" ON "issues" ("sort_order") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_issues_on_created_at" ON "issues" ("created_at") /*application='LinearClone'*/[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE INDEX "index_issues_on_search_vector" ON "issues" USING gin ("search_vector") /*application='LinearClone'*/[0m
+  [1m[35m (3.1ms)[0m  [1m[35mCREATE TABLE "labels" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "workspace_id" uuid NOT NULL, "team_id" uuid, "name" character varying NOT NULL, "color" character varying NOT NULL, "description" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_b537941577"
+FOREIGN KEY ("workspace_id")
+  REFERENCES "workspaces" ("id")
+, CONSTRAINT "fk_rails_7a9db9a278"
+FOREIGN KEY ("team_id")
+  REFERENCES "teams" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_labels_on_workspace_id" ON "labels" ("workspace_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_labels_on_team_id" ON "labels" ("team_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_labels_on_workspace_id_and_name" ON "labels" ("workspace_id", "name") /*application='LinearClone'*/[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_labels_on_team_id_and_name" ON "labels" ("team_id", "name") /*application='LinearClone'*/[0m
+  [1m[35m (2.1ms)[0m  [1m[35mCREATE TABLE "issue_labels" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "issue_id" uuid NOT NULL, "label_id" uuid NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_20b2920162"
+FOREIGN KEY ("issue_id")
+  REFERENCES "issues" ("id")
+, CONSTRAINT "fk_rails_3efb0f5064"
+FOREIGN KEY ("label_id")
+  REFERENCES "labels" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_issue_labels_on_issue_id" ON "issue_labels" ("issue_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_issue_labels_on_label_id" ON "issue_labels" ("label_id") /*application='LinearClone'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_issue_labels_on_issue_id_and_label_id" ON "issue_labels" ("issue_id", "label_id") /*application='LinearClone'*/[0m
+  [1m[35m (3.1ms)[0m  [1m[35mCREATE TABLE "comments" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "issue_id" uuid NOT NULL, "user_id" uuid NOT NULL, "parent_id" uuid, "body" text NOT NULL, "body_html" text, "edited_at" timestamp(6), "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_90ef1875d1"
+FOREIGN KEY ("issue_id")
+  REFERENCES "issues" ("id")
+, CONSTRAINT "fk_rails_03de2dc08c"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_31554e7034"
+FOREIGN KEY ("parent_id")
+  REFERENCES "comments" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_comments_on_issue_id" ON "comments" ("issue_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_comments_on_user_id" ON "comments" ("user_id") /*application='LinearClone'*/[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE INDEX "index_comments_on_parent_id" ON "comments" ("parent_id") /*application='LinearClone'*/[0m
+  [1m[35m (1.5ms)[0m  [1m[35mCREATE INDEX "index_comments_on_issue_id_and_created_at" ON "comments" ("issue_id", "created_at") /*application='LinearClone'*/[0m
+  [1m[35m (5.2ms)[0m  [1m[35mCREATE INDEX "index_comments_on_parent_id" ON "comments" ("parent_id") /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[31mROLLBACK /*application='LinearClone'*/[0m
+  [1m[35m (0.2ms)[0m  [1m[34mSELECT pg_advisory_unlock(225299084787497700) /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.8ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[35m (0.1ms)[0m  [1m[34mSELECT pg_try_advisory_lock(225299084787497700) /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.5ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::InternalMetadata Load (0.8ms)[0m  [1m[34mSELECT * FROM "ar_internal_metadata" WHERE "ar_internal_metadata"."key" = 'environment' ORDER BY "ar_internal_metadata"."key" ASC LIMIT 1 /*application='LinearClone'*/[0m
+Migrating to CreateIssues (20260122141150)
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[35mBEGIN /*application='LinearClone'*/[0m
+  [1m[35m (8.9ms)[0m  [1m[35mCREATE TABLE "issues" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "team_id" uuid NOT NULL, "workspace_id" uuid NOT NULL, "creator_id" uuid NOT NULL, "assignee_id" uuid, "project_id" uuid, "parent_id" uuid, "identifier" character varying NOT NULL, "number" integer NOT NULL, "title" character varying NOT NULL, "description" text, "description_html" text, "status" character varying DEFAULT 'backlog' NOT NULL, "priority" integer DEFAULT 0 NOT NULL, "due_date" date, "estimate" decimal(10,2), "sort_order" integer DEFAULT 0 NOT NULL, "started_at" timestamp(6), "completed_at" timestamp(6), "canceled_at" timestamp(6), "archived_at" timestamp(6), "search_vector" tsvector, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_0e2f829a69"
+FOREIGN KEY ("team_id")
+  REFERENCES "teams" ("id")
+, CONSTRAINT "fk_rails_b9944f3ac4"
+FOREIGN KEY ("workspace_id")
+  REFERENCES "workspaces" ("id")
+, CONSTRAINT "fk_rails_3ac2c1e009"
+FOREIGN KEY ("creator_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_ff669b5916"
+FOREIGN KEY ("assignee_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_899c8f3231"
+FOREIGN KEY ("project_id")
+  REFERENCES "projects" ("id")
+, CONSTRAINT "fk_rails_7bccfcc396"
+FOREIGN KEY ("parent_id")
+  REFERENCES "issues" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (1.5ms)[0m  [1m[35mCREATE INDEX "index_issues_on_team_id" ON "issues" ("team_id") /*application='LinearClone'*/[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE INDEX "index_issues_on_workspace_id" ON "issues" ("workspace_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_issues_on_creator_id" ON "issues" ("creator_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_issues_on_assignee_id" ON "issues" ("assignee_id") /*application='LinearClone'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE INDEX "index_issues_on_project_id" ON "issues" ("project_id") /*application='LinearClone'*/[0m
+  [1m[35m (1.1ms)[0m  [1m[35mCREATE INDEX "index_issues_on_parent_id" ON "issues" ("parent_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_issues_on_identifier" ON "issues" ("identifier") /*application='LinearClone'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_issues_on_team_id_and_number" ON "issues" ("team_id", "number") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_issues_on_workspace_id_and_status" ON "issues" ("workspace_id", "status") /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_issues_on_team_id_and_status" ON "issues" ("team_id", "status") /*application='LinearClone'*/[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_issues_on_assignee_id_and_status" ON "issues" ("assignee_id", "status") /*application='LinearClone'*/[0m
+  [1m[35m (0.3ms)[0m  [1m[35mCREATE INDEX "index_issues_on_project_id_and_status" ON "issues" ("project_id", "status") /*application='LinearClone'*/[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_issues_on_status" ON "issues" ("status") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_issues_on_priority" ON "issues" ("priority") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_issues_on_due_date" ON "issues" ("due_date") /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_issues_on_sort_order" ON "issues" ("sort_order") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_issues_on_created_at" ON "issues" ("created_at") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_issues_on_search_vector" ON "issues" USING gin ("search_vector") /*application='LinearClone'*/[0m
+  [1m[35m (3.7ms)[0m  [1m[35mCREATE TABLE "labels" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "workspace_id" uuid NOT NULL, "team_id" uuid, "name" character varying NOT NULL, "color" character varying NOT NULL, "description" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_b537941577"
+FOREIGN KEY ("workspace_id")
+  REFERENCES "workspaces" ("id")
+, CONSTRAINT "fk_rails_7a9db9a278"
+FOREIGN KEY ("team_id")
+  REFERENCES "teams" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (1.2ms)[0m  [1m[35mCREATE INDEX "index_labels_on_workspace_id" ON "labels" ("workspace_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_labels_on_team_id" ON "labels" ("team_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_labels_on_workspace_id_and_name" ON "labels" ("workspace_id", "name") /*application='LinearClone'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE INDEX "index_labels_on_team_id_and_name" ON "labels" ("team_id", "name") /*application='LinearClone'*/[0m
+  [1m[35m (1.7ms)[0m  [1m[35mCREATE TABLE "issue_labels" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "issue_id" uuid NOT NULL, "label_id" uuid NOT NULL, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_20b2920162"
+FOREIGN KEY ("issue_id")
+  REFERENCES "issues" ("id")
+, CONSTRAINT "fk_rails_3efb0f5064"
+FOREIGN KEY ("label_id")
+  REFERENCES "labels" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (0.8ms)[0m  [1m[35mCREATE INDEX "index_issue_labels_on_issue_id" ON "issue_labels" ("issue_id") /*application='LinearClone'*/[0m
+  [1m[35m (1.3ms)[0m  [1m[35mCREATE INDEX "index_issue_labels_on_label_id" ON "issue_labels" ("label_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.9ms)[0m  [1m[35mCREATE UNIQUE INDEX "index_issue_labels_on_issue_id_and_label_id" ON "issue_labels" ("issue_id", "label_id") /*application='LinearClone'*/[0m
+  [1m[35m (3.9ms)[0m  [1m[35mCREATE TABLE "comments" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "issue_id" uuid NOT NULL, "user_id" uuid NOT NULL, "parent_id" uuid, "body" text NOT NULL, "body_html" text, "edited_at" timestamp(6), "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_90ef1875d1"
+FOREIGN KEY ("issue_id")
+  REFERENCES "issues" ("id")
+, CONSTRAINT "fk_rails_03de2dc08c"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+, CONSTRAINT "fk_rails_31554e7034"
+FOREIGN KEY ("parent_id")
+  REFERENCES "comments" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_comments_on_issue_id" ON "comments" ("issue_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.7ms)[0m  [1m[35mCREATE INDEX "index_comments_on_user_id" ON "comments" ("user_id") /*application='LinearClone'*/[0m
+  [1m[35m (1.0ms)[0m  [1m[35mCREATE INDEX "index_comments_on_parent_id" ON "comments" ("parent_id") /*application='LinearClone'*/[0m
+  [1m[35m (1.4ms)[0m  [1m[35mCREATE INDEX "index_comments_on_issue_id_and_created_at" ON "comments" ("issue_id", "created_at") /*application='LinearClone'*/[0m
+  [1m[35m (2.2ms)[0m  [1m[35mCREATE TABLE "issue_activities" ("id" uuid DEFAULT gen_random_uuid() NOT NULL PRIMARY KEY, "issue_id" uuid NOT NULL, "user_id" uuid NOT NULL, "action" character varying NOT NULL, "field" character varying, "old_value" text, "new_value" text, "created_at" timestamp(6) NOT NULL, "updated_at" timestamp(6) NOT NULL, CONSTRAINT "fk_rails_86a52f69c1"
+FOREIGN KEY ("issue_id")
+  REFERENCES "issues" ("id")
+, CONSTRAINT "fk_rails_286a746468"
+FOREIGN KEY ("user_id")
+  REFERENCES "users" ("id")
+) /*application='LinearClone'*/[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_issue_activities_on_issue_id" ON "issue_activities" ("issue_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.4ms)[0m  [1m[35mCREATE INDEX "index_issue_activities_on_user_id" ON "issue_activities" ("user_id") /*application='LinearClone'*/[0m
+  [1m[35m (0.6ms)[0m  [1m[35mCREATE INDEX "index_issue_activities_on_issue_id_and_created_at" ON "issue_activities" ("issue_id", "created_at") /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Create (0.2ms)[0m  [1m[32mINSERT INTO "schema_migrations" ("version") VALUES ('20260122141150') RETURNING "version" /*application='LinearClone'*/[0m
+  [1m[36mTRANSACTION (0.9ms)[0m  [1m[35mCOMMIT /*application='LinearClone'*/[0m
+  [1m[35m (0.4ms)[0m  [1m[34mSELECT pg_advisory_unlock(225299084787497700) /*application='LinearClone'*/[0m
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC /*application='LinearClone'*/[0m

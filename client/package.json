@@ -1,0 +1,43 @@
+{
+  "name": "linear-clone-client",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "type-check": "vue-tsc --noEmit",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint ."
+  },
+  "dependencies": {
+    "@rails/actioncable": "^7.2.300",
+    "@vueuse/core": "^13.9.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-vue-next": "^0.509.0",
+    "pinia": "^3.0.4",
+    "sortablejs": "^1.15.6",
+    "tailwind-merge": "^3.4.0",
+    "vue": "^3.5.27",
+    "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@tailwindcss/forms": "^0.5.11",
+    "@tailwindcss/typography": "^0.5.19",
+    "@types/sortablejs": "^1.15.9",
+    "@vitejs/plugin-vue": "^6.0.3",
+    "@vue/eslint-config-typescript": "^14.6.0",
+    "@vue/tsconfig": "^0.7.0",
+    "autoprefixer": "^10.4.23",
+    "eslint": "^9.39.2",
+    "eslint-plugin-vue": "^10.7.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.19",
+    "typescript": "~5.8.3",
+    "vite": "^7.3.1",
+    "vue-tsc": "^2.2.12"
+  }
+}
