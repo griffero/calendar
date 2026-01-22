@@ -36,9 +36,18 @@ const subscriptions = new Map<string, CableSubscription>()
 
 // Get the WebSocket URL based on environment
 function getWebSocketUrl(): string {
+  const apiUrl = import.meta.env.VITE_API_URL
+  
+  if (apiUrl) {
+    // Convert HTTP URL to WebSocket URL
+    return apiUrl.replace(/^https?:/, (match: string) => 
+      match === 'https:' ? 'wss:' : 'ws:'
+    ) + '/cable'
+  }
+  
+  // Default to same host
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-  const host = import.meta.env.VITE_WS_HOST || window.location.host
-  return `${protocol}//${host}/cable`
+  return `${protocol}//${window.location.host}/cable`
 }
 
 // Initialize ActionCable connection

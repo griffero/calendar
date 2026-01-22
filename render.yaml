@@ -1,0 +1,151 @@
+# Render Blueprint for Circular (Linear Clone)
+# https://render.com/docs/blueprint-spec
+
+services:
+  # ===========================================
+  # Rails API Web Service
+  # ===========================================
+  - type: web
+    name: circular-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    region: oregon
+    plan: starter
+    healthCheckPath: /up
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_LOG_LEVEL
+        value: info
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: circular-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: circular-redis
+          type: redis
+          property: connectionString
+      - key: CORS_ORIGINS
+        sync: false
+      # AWS S3 (optional - for file uploads)
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        value: us-east-1
+      - key: AWS_BUCKET
+        sync: false
+      # Stripe (optional - for billing)
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+
+  # ===========================================
+  # Sidekiq Background Worker
+  # ===========================================
+  - type: worker
+    name: circular-worker
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerCommand: bundle exec sidekiq -C config/sidekiq.yml
+    region: oregon
+    plan: starter
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: SECRET_KEY_BASE
+        fromService:
+          name: circular-api
+          type: web
+          envVarKey: SECRET_KEY_BASE
+      - key: DATABASE_URL
+        fromDatabase:
+          name: circular-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: circular-redis
+          type: redis
+          property: connectionString
+      # AWS S3 (for file processing jobs)
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        value: us-east-1
+      - key: AWS_BUCKET
+        sync: false
+      # Stripe (for billing webhooks)
+      - key: STRIPE_SECRET_KEY
+        sync: false
+
+  # ===========================================
+  # Vue.js Static Site
+  # ===========================================
+  - type: web
+    name: circular-client
+    runtime: static
+    buildCommand: cd client && npm ci && npm run build
+    staticPublishPath: ./client/dist
+    pullRequestPreviewsEnabled: true
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://circular-api.onrender.com/api/*
+      - type: rewrite
+        source: /graphql
+        destination: https://circular-api.onrender.com/graphql
+      - type: rewrite
+        source: /cable
+        destination: wss://circular-api.onrender.com/cable
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: VITE_API_URL
+        value: https://circular-api.onrender.com
+
+  # ===========================================
+  # Redis for ActionCable & Sidekiq
+  # ===========================================
+  - type: redis
+    name: circular-redis
+    region: oregon
+    plan: starter
+    maxmemoryPolicy: noeviction
+    ipAllowList: []
+
+# ===========================================
+# PostgreSQL Database
+# ===========================================
+databases:
+  - name: circular-db
+    region: oregon
+    plan: starter
+    databaseName: circular_production
+    user: circular
+    ipAllowList: []
