@@ -10,7 +10,7 @@ services:
     runtime: docker
     dockerfilePath: ./Dockerfile
     region: oregon
-    plan: starter
+    plan: basic
     healthCheckPath: /up
     envVars:
       - key: RAILS_ENV
@@ -58,7 +58,7 @@ services:
     dockerfilePath: ./Dockerfile
     dockerCommand: bundle exec sidekiq -C config/sidekiq.yml
     region: oregon
-    plan: starter
+    plan: basic
     envVars:
       - key: RAILS_ENV
         value: production
@@ -135,7 +135,7 @@ services:
   - type: redis
     name: circular-redis
     region: oregon
-    plan: starter
+    plan: basic
     maxmemoryPolicy: noeviction
     ipAllowList: []
 
@@ -145,7 +145,7 @@ services:
 databases:
   - name: circular-db
     region: oregon
-    plan: starter
+    plan: basic
     databaseName: circular_production
     user: circular
     ipAllowList: []
